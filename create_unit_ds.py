@@ -60,7 +60,7 @@ def convert_code_fn(batch_data, hc_model, data_set=""):
             "audio_full_answer_end" in batch_data["answers"]:
         answer_start = batch_data["answers"]["audio_full_answer_start"][0]
         answer_end = batch_data["answers"]["audio_full_answer_end"][0]
-        if len(context_audio[answer_start * 1000:answer_end * 1000]) > 1000:
+        if len(context_audio[answer_start * 1000:answer_end * 1000]) > 1:
             answer_audio = context_audio[answer_start * 1000:answer_end * 1000]
         else:
             return batch_data
