@@ -1,13 +1,9 @@
-import torch
-import nlp2
 import json
+
+from asrp.code2voice_model.hubert import hifigan_hubert_layer6_code100
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from asrp.code2voice_model.hubert import hifigan_hubert_layer6_code100
-import IPython.display as ipd
-
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
-from datasets import load_dataset
 
 # load model and processor
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-large")
@@ -19,15 +15,17 @@ model = AutoModelForSeq2SeqLM.from_pretrained("Oscarshih/long-t5-base-SQA-15ep")
 dataset = load_dataset("voidful/NMSQA-CODE")
 cs = hifigan_hubert_layer6_code100()
 
+
 def process_and_generate(input_unit):
     inputs = tokenizer("".join([f"v_tok_{i}" for i in input_unit]), return_tensors="pt").to('cuda')
-    code = tokenizer.batch_decode(model.generate(**inputs,max_length=1024))[0]
-    code = [int(i) for i in code.replace("</s>","").replace("<s>","").split("v_tok_")[1:]]
+    code = tokenizer.batch_decode(model.generate(**inputs, max_length=1024))[0]
+    code = [int(i) for i in code.replace("</s>", "").replace("<s>", "").split("v_tok_")[1:]]
     audio = cs(code)
-    input_features = whisper_processor(audio, sampling_rate=16000, return_tensors="pt").to('cuda')
+    input_features = whisper_processor(audio, sampling_rate=16000, return_tensors="pt")['input_features'].to('cuda')
     predicted_ids = whisper_model.generate(input_features)
-    transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)
+    transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
     return transcription
+
 
 for qa_item in dataset['dev']:
     question_unit = json.loads(qa_item['hubert_100_question_unit'])[0]["merged_code"]
