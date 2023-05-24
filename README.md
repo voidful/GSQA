@@ -1,5 +1,4 @@
-[long-t5-base-SQA-hubert-100](https://huggingface.co/Oscarshih/long-t5-base-SQA)
-[long-t5-base-SQA-hubert-100](https://huggingface.co/Oscarshih/long-t5-base-SQA)
+# GSQA
 
-
-/home/voidful/GSQA/t5-seq2seq-trainer/training_output/Hubert/checkpoint-87599/
+[long-t5-base-SQA-hubert-100](https://huggingface.co/Oscarshih/long-t5-base-SQA)  
+[long-t5-base-SQA-mhubert-1000](https://huggingface.co/voidful/long-t5-base-SQA-mhubert-1000)  
