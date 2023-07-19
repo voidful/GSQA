@@ -23,3 +23,15 @@ Training Script:
 ```bash=
 python3 main.py
 ```
+
+## Evaluating
+ASR Model:[Whisper]() --> TBD
+
+Language Model:[Long-T5-HuBERT-Unit](https://huggingface.co/Oscarshih/long-t5-base-SQA), [Long-T5-mHuBERT-Unit](https://huggingface.co/voidful/long-t5-base-SQA-mhubert-1000)
+
+Evaluating Script:
+```
+python3 whisper_evaluate.py 
+python3 eval_score.py # Remember to check the name of output files.
+# Note: Please put the best reported score to Overleaf Table.
+```
