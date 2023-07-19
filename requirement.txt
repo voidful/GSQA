@@ -1,4 +1,0 @@
-pydub
-asrp
-nlp2
-datasets

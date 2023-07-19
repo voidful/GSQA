@@ -1,0 +1,7 @@
+pydub
+asrp
+nlp2
+transformers
+datasets
+git+https://github.com/voidful/nlg-eval.git
+editdistance
