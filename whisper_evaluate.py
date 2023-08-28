@@ -37,8 +37,6 @@ def process_and_generate(input_unit, cs):
         predicted_ids, skip_special_tokens=True)[0].strip()
     return transcription
 
-
-count = 0
 output = []
 for qa_item in dataset["dev"]:
     cs = hifigan_hubert_layer6_code100()
@@ -51,7 +49,6 @@ for qa_item in dataset["dev"]:
         answer_unit = json.loads(
             qa_item["hubert_100_answer_unit"])[0]["merged_code"]
     except:
-        count += 1
         continue
     groundtruth_answer = cs(answer_unit)
     input_features = whisper_processor(
@@ -67,38 +64,7 @@ for qa_item in dataset["dev"]:
     # print(output[-1])
 with open("hubert_dev_pred.json", "w") as f:
     json.dump(output, f, indent=4)
-# print("dev_set invalid count: ", count)
 
-# output = []
-# for qa_item in dataset["dev"]:
-#     cs = hifigan_mhubert_en_layer11_code1000()
-#     ans_dict = {}
-#     try:
-#         question_unit = json.loads(
-#             qa_item["mhubert_1000_question_unit"])[0]["merged_code"]
-#         context_unit = json.loads(
-#             qa_item["mhubert_1000_context_unit"])[0]["merged_code"]
-#         answer_unit = json.loads(
-#             qa_item["mhubert_1000_answer_unit"])[0]["merged_code"]
-#     except:
-#         continue
-#     groundtruth_answer = cs(answer_unit)
-#     input_features = whisper_processor(
-#         groundtruth_answer, sampling_rate=16000,
-#         return_tensors="pt")["input_features"].to("cuda")
-#     predicted_ids = whisper_model.generate(input_features)
-#     groundtruth_transcription = whisper_processor.batch_decode(
-#         predicted_ids, skip_special_tokens=True)[0].strip()
-#     pred_transcription = process_and_generate(question_unit + context_unit, cs)
-#     # pred_transcription = process_and_generate(answer_unit)
-#     ans_dict["gt"] = groundtruth_transcription
-#     ans_dict["pred"] = pred_transcription
-#     output.append(ans_dict)
-
-# with open("mhubert_dev_pred.json", "w") as f:
-#     json.dump(output, f, indent=4)
-
-count = 0
 output = []
 for qa_item in dataset["train"]:
     if count == 10000:
@@ -112,7 +78,6 @@ for qa_item in dataset["train"]:
             qa_item["hubert_100_context_unit"])[0]["merged_code"]
         answer_unit = json.loads(
             qa_item["hubert_100_answer_unit"])[0]["merged_code"]
-        count += 1
     except:
         continue
     groundtruth_answer = cs(answer_unit)
@@ -130,36 +95,3 @@ for qa_item in dataset["train"]:
 
 with open("hubert_train_pred.json", "w") as f:
     json.dump(output, f, indent=4)
-
-
-# output = []
-# for qa_item in dataset["train"]:
-#     if count == 10000:
-#         break
-#     cs = hifigan_mhubert_en_layer11_code1000()
-#     ans_dict = {}
-#     try:
-#         question_unit = json.loads(
-#             qa_item["mhubert_1000_question_unit"])[0]["merged_code"]
-#         context_unit = json.loads(
-#             qa_item["mhubert_1000_context_unit"])[0]["merged_code"]
-#         answer_unit = json.loads(
-#             qa_item["mhubert_1000_answer_unit"])[0]["merged_code"]
-#         count += 1
-#     except:
-#         continue
-#     groundtruth_answer = cs(answer_unit)
-#     input_features = whisper_processor(
-#         groundtruth_answer, sampling_rate=16000,
-#         return_tensors="pt")["input_features"].to("cuda")
-#     predicted_ids = whisper_model.generate(input_features)
-#     groundtruth_transcription = whisper_processor.batch_decode(
-#         predicted_ids, skip_special_tokens=True)[0].strip()
-#     pred_transcription = process_and_generate(question_unit + context_unit, cs)
-#     # pred_transcription = process_and_generate(answer_unit)
-#     ans_dict["gt"] = groundtruth_transcription
-#     ans_dict["pred"] = pred_transcription
-#     output.append(ans_dict)
-
-# with open("mhubert_train_pred.json", "w") as f:
-#     json.dump(output, f, indent=4)
