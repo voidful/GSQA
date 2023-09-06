@@ -5,7 +5,8 @@ from statistics import mean
 
 import editdistance as ed
 from nlgeval import NLGEval
-
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+from rouge import Rouge
 
 def _normalize_answer(s):
     """Lower text and remove punctuation, articles and extra whitespace."""
@@ -63,6 +64,19 @@ def wer_cal(groundtruth, hypothesis):
         tot += len(t)
     return err / tot
 
+def calculate_scores(prediction, reference):
+    rouge = Rouge()
+    scores = rouge.get_scores(prediction, reference)
+    rouge_1_score = scores[0]['rouge-1']['f']
+    rouge_2_score = scores[0]['rouge-2']['f']
+    rouge_l_score = scores[0]['rouge-l']['f']
+    
+    reference = [reference.split()]
+    candidate = prediction.split()
+    smoothing = SmoothingFunction().method1
+    bleu1_score = sentence_bleu(reference, candidate, weights=(1, 0, 0, 0), smoothing_function=smoothing)
+    
+    return bleu1_score, rouge_1_score, rouge_2_score, rouge_l_score
 
 nlgeval = NLGEval(no_skipthoughts=True, no_glove=True, metrics_to_omit=["METEOR", "CIDEr"])
 
