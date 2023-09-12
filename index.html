@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Generative Spoken Question Answering</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="jquery-3.5.js"></script>
+</head>
+<body>
+<div class="container">
+    <div id="text1">Generative Spoken Question Answering</div>
+    <div id="intro">
+        <br>
+        <p>
+            Min-Han Shih, Ho-Lam Chung, Yu-Chi Pai, Ming-Hao Hsu, <br>
+            Guan-Ting Lin, Shang-Wen Li, Hung-Yi Lee
+        </p>
+        <!--        <p>In <i></i></p>-->
+        <p>
+            [<a href="" , target='_blank'>Paper</a>]
+            [<a href="https://github.com/voidful/GSQA" , target='_blank'>Code</a>]
+
+        </p>
+    </div>
+</div>
+<div class="content-container">
+    <img src="figure.svg" style="width:80%">
+    <p>
+    <p>
+        In recent advancements in speech-to-speech question answering (QA), end-to-end models have made significant
+        strides. However, previous research has primarily focused on extractive span selection. While this
+        extractive-based approach is effective when answers are present directly within the input, it falls short in
+        addressing abstractive questions, where answers are not directly extracted but inferred from the given
+        information.
+    </p>
+    <p>
+        To bridge this gap, we introduce the first end-to-end <strong>G</strong>enerative <strong>S</strong>poken
+        <strong>Q</strong>uestion <strong>A</strong>nswering (GSQA) model that empowers the system to engage in
+        abstractive reasoning. The challenge in training our GSQA model lies in the absence of a spoken abstractive QA
+        dataset. We propose using text models for initialization and leveraging the extractive QA dataset to transfer
+        knowledge from the text generative model to the spoken generative model.
+    </p>
+    <p>
+        Experimental results indicate that our model surpasses the previous extractive model by 3% on extractive QA
+        datasets. Furthermore, in the abstractive zero-shot domain, our model's capabilities closely match to the
+        cascade model. In conclusion, our GSQA model shows the potential to generalize to a broad spectrum of questions,
+        thus further expanding spoken question answering capabilities of abstractive QA.
+    </p>
+    </br>
+    </br>
+    <img src="figure2.svg" style="width:60%">
+    <br/>
+</div>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+<div class="content-container">
+    Sample paged based on <a style="color:rgb(22, 38, 67)"
+                             href="https://daps.cs.princeton.edu/projects/HiFi-GAN/index.php"> HiFi-GAN</a> page.
+</div>
+</body>
+</html>
