@@ -24,17 +24,13 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         text_labels = tokenizer(answer_texts, padding=True, truncation=True, return_tensors="pt").input_ids[0]
         text_labels= [text_labels[:-1]]
         text_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in text_labels]
-        # print(text_labels)
-        # print()
+
         unit_labels = tokenizer(v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
         unit_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in unit_labels]
-        # print(unit_labels)
-        # all_labels = tokenizer(answer_texts,v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
+        # 32099: <extra_id_0>
         all_labels = [text_labels[0]+[torch.tensor(32099)]+unit_labels[0]]
         # print(all_labels)
-        # all_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in all_labels]
-        # all_labels = [[text, torch.tensor(-100), unit] for (text, unit) in zip(text_labels, unit_labels)]
-        # print(all_labels)
+
         assert len(input_ids) == len(unit_labels)
         # with open("test.json", "w") as test_file:
         #     json.dump({

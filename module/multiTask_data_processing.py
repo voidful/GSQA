@@ -1,4 +1,12 @@
-# alpaca unit-to-unit
+from transformers import (
+    AutoTokenizer,
+    AutoModelForSeq2SeqLM,
+    DataCollatorForSeq2Seq,
+    Seq2SeqTrainer,
+    Seq2SeqTrainingArguments
+)
+
+# alpaca text+unit input to unit output
 def get_train_valid_dataset(training_args, tokenizer, model_config):
     # Load dataset
     from datasets import load_dataset
@@ -19,13 +27,23 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         unit_labels = tokenizer(v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
         unit_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in unit_labels]
 
- 
+        
+        q_ts = batch["instruction"]
+        aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
+        aux_inputs = tokenizer(aux_str_inputs, padding=True, truncation=True, return_tensors="pt")
+        aux_input_ids = aux_inputs["input_ids"]
+        aux_attention_mask = aux_inputs["attention_mask"]
+        
         assert len(input_ids) == len(unit_labels)
 
         return {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
             "labels": unit_labels,
+            # auxilary task unput
+            "aux_inputs": aux_str_inputs,
+            # "aux_input_ids": aux_input_ids,
+            # "aux_attention_mask": aux_attention_mask,
         }
 
     # Apply the processing function to the datasets
@@ -33,80 +51,25 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         process_data_to_model_inputs,
         batched=True,
         batch_size=training_args.per_device_train_batch_size,
-        cache_file_name="hubert_train_alpaca",
+        cache_file_name="aux_train_alpaca",
         load_from_cache_file=True
     )
     valid_dataset = valid_dataset.map(
         process_data_to_model_inputs,
         batched=True,
         batch_size=training_args.per_device_eval_batch_size,
-        cache_file_name="hubert_valid_alpaca",
+        cache_file_name="aux_valid_alpaca",
         load_from_cache_file=True
     )
 
     # filter out if len>=4096
-    train_dataset = train_dataset.filter(lambda example: len(example["labels"])<4096)
-    valid_dataset = valid_dataset.filter(lambda example: len(example["labels"])<4096)
+    train_dataset = train_dataset.filter(lambda example: len(example["labels"])<3072)
+    valid_dataset = valid_dataset.filter(lambda example: len(example["labels"])<3072)
 
     return train_dataset, valid_dataset
 
-# def get_train_valid_dataset(training_args, tokenizer, model_config):
-#     # Load dataset
-#     from datasets import load_dataset
-#     dataset = load_dataset("voidful/NMSQA-CODE")
-#     train_dataset = dataset['train']
-#     valid_dataset = dataset['dev']
-#     # valid_dataset = dataset['validation']
 
-#     # Define function to process data into model inputs
-#     def process_data_to_model_inputs(batch):
-#         # Tokenize questions and contexts
-#         q, c, a = batch['hubert_100_question_unit'], batch['hubert_100_context_unit'], batch['hubert_100_answer_unit']
-#         v_tok_q, v_tok_c, v_tok_a = convert_vtok(q), convert_vtok(c), convert_vtok(a)
-#         inputs = tokenizer(v_tok_q, v_tok_c, padding=True, truncation=True, return_tensors="pt")
-#         input_ids = inputs["input_ids"]
-#         attention_mask = inputs["attention_mask"]
 
-#         # Tokenize answers and create labels
-#         # answer_texts = [i["text"][0] for i in batch["answers"]]
-#         labels = tokenizer(v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
-#         labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in labels]
-#         assert len(input_ids) == len(labels)
-#         # with open("test.json", "w") as test_file:
-#         #     json.dump({
-#         #         "v_tok_q": v_tok_q,
-#         #         "v_tok_c": v_tok_c,
-#         #         "v_tok_a": v_tok_a,
-#         #         "input_ids": input_ids.tolist(), 
-#         #         "attention_mask": attention_mask.tolist(), 
-#         #         "labels": labels.tolist()
-#         #         }, 
-#         #         test_file, 
-#         #         indent=4)
-#         # raise
-#         return {
-#             "input_ids": input_ids,
-#             "attention_mask": attention_mask,
-#             "labels": labels,
-#         }
-
-#     # Apply the processing function to the datasets
-#     train_dataset = train_dataset.map(
-#         process_data_to_model_inputs,
-#         batched=True,
-#         batch_size=training_args.per_device_train_batch_size,
-#         cache_file_name="hubert_train",
-#         # load_from_cache_file=True
-#     )
-#     valid_dataset = valid_dataset.map(
-#         process_data_to_model_inputs,
-#         batched=True,
-#         batch_size=training_args.per_device_eval_batch_size,
-#         cache_file_name="hubert_valid",
-#         # load_from_cache_file=True
-#     )
-
-#     return train_dataset, valid_dataset
 
 import json
 # Check the mismatch between (question, context) and (answer). 
@@ -172,4 +135,5 @@ if __name__ == "__main__":
     data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
     # Load dataset
     train_dataset, valid_dataset = get_train_valid_dataset(training_args, tokenizer, model.config)
-    print(train_dataset)
+    print(train_dataset[0])
+    
