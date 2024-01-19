@@ -33,7 +33,7 @@ model = AutoModelForSeq2SeqLM.from_pretrained("GSQA/LongT5-alpaca-TQA")
 
 training_args = Seq2SeqTrainingArguments(
     output_dir="./training_output/longt5-alpaca-multiTask-unit",
-    num_train_epochs=30,
+    num_train_epochs=40,
     per_device_train_batch_size=1,
     per_device_eval_batch_size=1,
     warmup_steps=500,

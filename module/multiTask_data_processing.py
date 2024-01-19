@@ -29,10 +29,20 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
 
         
         q_ts = batch["instruction"]
+        a_ts = batch["output"]
+        # 1. qt,qu
         aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
-        aux_inputs = tokenizer(aux_str_inputs, padding=True, truncation=True, return_tensors="pt")
-        aux_input_ids = aux_inputs["input_ids"]
-        aux_attention_mask = aux_inputs["attention_mask"]
+        # # 2. qt,at,qu
+        # aux_str_inputs = [ qt+" "+at+" "+tok_q for qt, at, tok_q in zip(q_ts, a_ts, v_tok_q)]
+        # # 3. qu,at
+        # aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
+        # # 4. at
+        # aux_str_inputs = [ at for at in a_ts ]
+
+
+        # aux_inputs = tokenizer(aux_str_inputs, padding=True, truncation=True, return_tensors="pt")
+        # aux_input_ids = aux_inputs["input_ids"]
+        # aux_attention_mask = aux_inputs["attention_mask"]
         
         assert len(input_ids) == len(unit_labels)
 
@@ -51,15 +61,15 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         process_data_to_model_inputs,
         batched=True,
         batch_size=training_args.per_device_train_batch_size,
-        cache_file_name="aux_train_alpaca",
-        load_from_cache_file=True
+        # cache_file_name="aux_train_alpaca",
+        # load_from_cache_file=True
     )
     valid_dataset = valid_dataset.map(
         process_data_to_model_inputs,
         batched=True,
         batch_size=training_args.per_device_eval_batch_size,
-        cache_file_name="aux_valid_alpaca",
-        load_from_cache_file=True
+        # cache_file_name="aux_valid_alpaca",
+        # load_from_cache_file=True
     )
 
     # filter out if len>=4096
