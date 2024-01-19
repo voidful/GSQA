@@ -1,4 +1,5 @@
-# alpaca unit-to-unit
+import torch
+# alpaca text-guided-unit
 def get_train_valid_dataset(training_args, tokenizer, model_config):
     # Load dataset
     from datasets import load_dataset
@@ -10,22 +11,43 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
     # Define function to process data into model inputs
     def process_data_to_model_inputs(batch):
         # Tokenize questions and contexts
-        q, a = batch['hubert_layer6_code100_input_code'], batch['hubert_layer6_code100_output_audio']
+        q, a = batch['hubert_layer6_code100_input_code'],batch['hubert_layer6_code100_output_audio']
         v_tok_q, v_tok_a = convert_vtok(q), convert_vtok(a)
         inputs = tokenizer(v_tok_q, padding=True, truncation=True, return_tensors="pt")
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
-        
+
+        answer_texts = batch["output"]
+
+        # Tokenize answers and create labels
+        # answer_texts = [i["output"] for i in batch["answers"]]
+        text_labels = tokenizer(answer_texts, padding=True, truncation=True, return_tensors="pt").input_ids[0]
+        text_labels= [text_labels[:-1]]
+        text_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in text_labels]
+
         unit_labels = tokenizer(v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
         unit_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in unit_labels]
+        # 32099: <extra_id_0>
+        all_labels = [text_labels[0]+[torch.tensor(32099)]+unit_labels[0]]
+        # print(all_labels)
 
- 
         assert len(input_ids) == len(unit_labels)
-
+        # with open("test.json", "w") as test_file:
+        #     json.dump({
+        #         "v_tok_q": v_tok_q,
+        #         "v_tok_c": v_tok_c,
+        #         "v_tok_a": v_tok_a,
+        #         "input_ids": input_ids.tolist(), 
+        #         "attention_mask": attention_mask.tolist(), 
+        #         "labels": labels.tolist()
+        #         }, 
+        #         test_file, 
+        #         indent=4)
+        # raise
         return {
             "input_ids": input_ids,
             "attention_mask": attention_mask,
-            "labels": unit_labels,
+            "labels": all_labels,
         }
 
     # Apply the processing function to the datasets
@@ -44,69 +66,10 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         load_from_cache_file=True
     )
 
-    # filter out if len>=4096
     train_dataset = train_dataset.filter(lambda example: len(example["labels"])<4096)
     valid_dataset = valid_dataset.filter(lambda example: len(example["labels"])<4096)
 
     return train_dataset, valid_dataset
-
-# def get_train_valid_dataset(training_args, tokenizer, model_config):
-#     # Load dataset
-#     from datasets import load_dataset
-#     dataset = load_dataset("voidful/NMSQA-CODE")
-#     train_dataset = dataset['train']
-#     valid_dataset = dataset['dev']
-#     # valid_dataset = dataset['validation']
-
-#     # Define function to process data into model inputs
-#     def process_data_to_model_inputs(batch):
-#         # Tokenize questions and contexts
-#         q, c, a = batch['hubert_100_question_unit'], batch['hubert_100_context_unit'], batch['hubert_100_answer_unit']
-#         v_tok_q, v_tok_c, v_tok_a = convert_vtok(q), convert_vtok(c), convert_vtok(a)
-#         inputs = tokenizer(v_tok_q, v_tok_c, padding=True, truncation=True, return_tensors="pt")
-#         input_ids = inputs["input_ids"]
-#         attention_mask = inputs["attention_mask"]
-
-#         # Tokenize answers and create labels
-#         # answer_texts = [i["text"][0] for i in batch["answers"]]
-#         labels = tokenizer(v_tok_a, padding=True, truncation=True, return_tensors="pt").input_ids
-#         labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in labels]
-#         assert len(input_ids) == len(labels)
-#         # with open("test.json", "w") as test_file:
-#         #     json.dump({
-#         #         "v_tok_q": v_tok_q,
-#         #         "v_tok_c": v_tok_c,
-#         #         "v_tok_a": v_tok_a,
-#         #         "input_ids": input_ids.tolist(), 
-#         #         "attention_mask": attention_mask.tolist(), 
-#         #         "labels": labels.tolist()
-#         #         }, 
-#         #         test_file, 
-#         #         indent=4)
-#         # raise
-#         return {
-#             "input_ids": input_ids,
-#             "attention_mask": attention_mask,
-#             "labels": labels,
-#         }
-
-#     # Apply the processing function to the datasets
-#     train_dataset = train_dataset.map(
-#         process_data_to_model_inputs,
-#         batched=True,
-#         batch_size=training_args.per_device_train_batch_size,
-#         cache_file_name="hubert_train",
-#         # load_from_cache_file=True
-#     )
-#     valid_dataset = valid_dataset.map(
-#         process_data_to_model_inputs,
-#         batched=True,
-#         batch_size=training_args.per_device_eval_batch_size,
-#         cache_file_name="hubert_valid",
-#         # load_from_cache_file=True
-#     )
-
-#     return train_dataset, valid_dataset
 
 import json
 # Check the mismatch between (question, context) and (answer). 
