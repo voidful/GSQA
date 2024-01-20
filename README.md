@@ -58,13 +58,13 @@ Modify preprocessing script: `module/multiTask_data_processing.py`
 
 To choose different multiTask input, uncomment one of the following aux_str_inputs: 
 ```
-# # 1. qt,qu
+# # task 1. qt,qu
 # aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
-# # 2. qt,at,qu
+# # task 2. qt,at,qu
 # aux_str_inputs = [ qt+" "+at+" "+tok_q for qt, at, tok_q in zip(q_ts, a_ts, v_tok_q)]
-# # 3. qu,at
+# # task 3. qu,at
 # aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
-# # 4. at
+# # task 4. at
 # aux_str_inputs = [ at for at in a_ts ]
 ```
 
