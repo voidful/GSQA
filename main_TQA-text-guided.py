@@ -11,22 +11,14 @@ from transformers import (
 from module.text_guided_data_processing import get_train_valid_dataset
 from module.eval_metric import compute_metrics_fn
 from transformers import logging
+
 logging.set_verbosity_warning()
 # Load model and tokenizer and Set training parameters
 
 import wandb
 wandb.init(project="longt5-alpaca-TQA-text_guided_unit")
 
-import argparse
 
-
-
-
-# Argument parsing for command-line options
-parser = argparse.ArgumentParser()
-parser.add_argument("--aux_task", type=str,  choices=['qt,qu', 'qt,at,qu', "qu,at", "at"], 
-                    default='qt,at,qu', help='Select auxiliary tasks for training')
-config = parser.parse_args()
 
 
 # alpaca-TQA-init model
@@ -55,7 +47,7 @@ training_args = Seq2SeqTrainingArguments(
 # Define a data collator to handle tokenization
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 # Load dataset
-train_dataset, valid_dataset = get_train_valid_dataset(training_args, tokenizer, config)
+train_dataset, valid_dataset = get_train_valid_dataset(training_args, tokenizer, model.config)
 # print(valid_dataset[0])
 
 

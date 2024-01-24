@@ -20,6 +20,15 @@ from accelerate import notebook_launcher
 import wandb
 wandb.init(project="longt5-alpaca-TQA-multiTask")
 
+
+import argparse
+# Argument parsing for command-line options
+parser = argparse.ArgumentParser()
+parser.add_argument("--aux_task", type=str,  choices=['qt,qu', 'qt,at,qu', "qu,at", "at"], 
+                    default='qt,at,qu', help='Select auxiliary tasks for training')
+config = parser.parse_args()
+
+
 # v1 TQA model
 # tokenizer = AutoTokenizer.from_pretrained("GSQA/longT5-TQA")
 # model = AutoModelForSeq2SeqLM.from_pretrained("GSQA/longT5-TQA")
@@ -53,7 +62,7 @@ training_args = Seq2SeqTrainingArguments(
 # Define a data collator to handle tokenization
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 # Load dataset
-train_dataset, valid_dataset = get_train_valid_dataset(training_args, tokenizer, model.config)
+train_dataset, valid_dataset = get_train_valid_dataset(training_args, tokenizer, config)
 # print(train_dataset[0])
 
 
