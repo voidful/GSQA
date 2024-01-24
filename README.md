@@ -24,17 +24,7 @@ Training Script:
 python3 main.py
 ```
 
-## Evaluating
-ASR Model:[Whisper]() --> TBD
 
-Language Model:[Long-T5-HuBERT-Unit](https://huggingface.co/Oscarshih/long-t5-base-SQA), [Long-T5-mHuBERT-Unit](https://huggingface.co/voidful/long-t5-base-SQA-mhubert-1000)
-
-Evaluating Script:
-```
-python3 whisper_evaluate.py 
-python3 eval_score.py # Remember to check the name of output files.
-# Note: Please put the best reported score to Overleaf Table.
-```
 
 
 ## Multi-Task Training
@@ -56,7 +46,7 @@ $ wandb login --relogin
 ### step1
 Modify preprocessing script: `module/multiTask_data_processing.py`
 
-To choose different multiTask input, uncomment one of the following aux_str_inputs: 
+To choose different multiTask input, uncomment one of the following aux_str_inputs in `multiTask_data_processing.py`: 
 ```
 # # task 1. qt,qu
 # aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
@@ -72,3 +62,32 @@ To choose different multiTask input, uncomment one of the following aux_str_inpu
 Run Training Script:
 ```bash=
 $ python3 main_multiTask.py
+```
+
+<!-- ### step3
+Evaluating Script:
+
+```
+python3 whisper_evaluate.py 
+python3 BertScore_eval.py # Remember to check the name of output files.
+``` -->
+
+
+## Unit-to-unit Evaluation
+ASR Model:[Whisper]() --> TBD
+
+<!-- Language Model:[Long-T5-HuBERT-Unit](https://huggingface.co/Oscarshih/long-t5-base-SQA), [Long-T5-mHuBERT-Unit](https://huggingface.co/voidful/long-t5-base-SQA-mhubert-1000) -->
+
+Evaluating Script:
+```
+# stpe1: run
+python3 whisper_evaluate.py --model /path/to/the/huggingface/model --auto_split_dataset
+# (for more optional arguments check whisper_evaluate.py)
+
+# step 2: for alpaca dataset BertScore, run
+python3 BertScore_eval.py
+# (remember to change the evaluation file path first)
+
+# step 2: for dataset with context, run
+python3 eval_score.py # Remember to check the name of output files.
+# Note: Please put the best reported score to Overleaf Table.
