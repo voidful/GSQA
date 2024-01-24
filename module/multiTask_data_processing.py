@@ -7,7 +7,7 @@ from transformers import (
 )
 
 # alpaca text+unit input to unit output
-def get_train_valid_dataset(training_args, tokenizer, model_config):
+def get_train_valid_dataset(training_args, tokenizer, config):
     # Load dataset
     from datasets import load_dataset
     dataset = load_dataset("GSQA/speech-alpaca-gpt4-unit")
@@ -30,14 +30,19 @@ def get_train_valid_dataset(training_args, tokenizer, model_config):
         
         q_ts = batch["instruction"]
         a_ts = batch["output"]
-        # 1. qt,qu
-        aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
-        # # 2. qt,at,qu
-        # aux_str_inputs = [ qt+" "+at+" "+tok_q for qt, at, tok_q in zip(q_ts, a_ts, v_tok_q)]
-        # # 3. qu,at
-        # aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
-        # # 4. at
-        # aux_str_inputs = [ at for at in a_ts ]
+        # choose auxilary task
+        if config.aux_task == 'qt,qu':
+            # 1. P (au|qt,qu)
+            aux_str_inputs = [ qt+" "+tok_q for qt, tok_q in zip(q_ts, v_tok_q)]
+        elif config.aux_task == 'qt,at,qu':
+            # 2. P (au|qt,at,qu)
+            aux_str_inputs = [ qt+" "+at+" "+tok_q for qt, at, tok_q in zip(q_ts, a_ts, v_tok_q)]
+        elif config.aux_task == 'qu,at':
+            # 3. P (au|qu,at)
+            aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
+        elif config.aux_task == 'at':
+            # 4. P (au|at)
+            aux_str_inputs = [ at for at in a_ts ]
 
 
         # aux_inputs = tokenizer(aux_str_inputs, padding=True, truncation=True, return_tensors="pt")
@@ -111,12 +116,10 @@ def convert_vtok(unit_code):
 #     return q, c, a
 
 if __name__ == "__main__":
-    import math
     from transformers import (
         AutoTokenizer,
         AutoModelForSeq2SeqLM,
         DataCollatorForSeq2Seq,
-        Seq2SeqTrainer,
         Seq2SeqTrainingArguments
     )
 
