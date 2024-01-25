@@ -37,9 +37,12 @@ def get_train_valid_dataset(training_args, tokenizer, config):
         elif config.aux_task == 'qt,at,qu':
             # 2. P (au|qt,at,qu)
             aux_str_inputs = [ qt+" "+at+" "+tok_q for qt, at, tok_q in zip(q_ts, a_ts, v_tok_q)]
+        elif config.aux_task == 'at,qu':
+            # 3. P (au|at,qu)
+            aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
         elif config.aux_task == 'qu,at':
             # 3. P (au|qu,at)
-            aux_str_inputs = [ at+" "+tok_q for at, tok_q in zip(a_ts, v_tok_q)]
+            aux_str_inputs = [ tok_q+" "+at for at, tok_q in zip(a_ts, v_tok_q)]
         elif config.aux_task == 'at':
             # 4. P (au|at)
             aux_str_inputs = [ at for at in a_ts ]
