@@ -59,7 +59,7 @@ def load_and_split_dataset():
 def process_and_generate(input_unit, cs, tokenizer, model, whisper_processor, whisper_model):
     # Generating code from input unit
     inputs = tokenizer("".join([f"v_tok_{i}" for i in input_unit]), return_tensors="pt").to("cuda")
-    code = tokenizer.batch_decode(model.generate(**inputs, max_length=1024))[0]
+    code = tokenizer.batch_decode(model.generate(**inputs, max_length=1024, do_sample=True, top_p=0.85))[0]
     code = [int(i) for i in code.replace("</s>", "").replace("<s>", "").split("v_tok_")[1:]]
     
     # Generating audio from code and transcribing
