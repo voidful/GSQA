@@ -6,3 +6,5 @@ datasets
 git+https://github.com/voidful/nlg-eval.git
 editdistance
 wandb
+evaluate
+bert_score
