@@ -28,7 +28,7 @@ def get_train_valid_dataset(training_args, tokenizer, config):
         unit_labels = [[-100 if token_id == tokenizer.pad_token_id else token_id for token_id in seq] for seq in unit_labels]
 
         
-        q_ts = batch["instruction"]
+        q_ts = batch["speech_input"]
         a_ts = batch["output"]
         # choose auxilary task
         if config.aux_task == 'qt,qu':
